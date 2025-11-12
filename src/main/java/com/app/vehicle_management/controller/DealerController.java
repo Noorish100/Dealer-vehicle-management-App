@@ -1,8 +1,10 @@
 package com.app.vehicle_management.controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,12 +33,15 @@ public class DealerController {
     public Dealer createDealer(@RequestBody Dealer dealer) {
         return dealerRepository.save(dealer);
     }
-
-    @PutMapping("/{id}")
-    public Dealer updateDealer(@PathVariable Integer id, @RequestBody Dealer dealer) {
-        dealer.setId(id);
-        return dealerRepository.save(dealer);
-    }
+        @PutMapping("/{id}")
+        public ResponseEntity<Dealer> updateDealer(@PathVariable Integer id, @RequestBody Dealer updatedDealer) {
+            return dealerRepository.findById(id).map(dealer -> {
+                dealer.setName(updatedDealer.getName());
+                dealer.setEmail(updatedDealer.getEmail());
+                dealer.setSubscriptionType(updatedDealer.getSubscriptionType());
+                return ResponseEntity.ok(dealerRepository.save(dealer));
+            }).orElse(ResponseEntity.notFound().build());
+        }
 
     @DeleteMapping("/{id}")
     public void deleteDealer(@PathVariable Integer id) {
